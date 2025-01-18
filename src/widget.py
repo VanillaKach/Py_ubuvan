@@ -1,25 +1,30 @@
-def mask_account_card(number_card: str, score_account: str):
+def mask_account_card(number_card_or_score_account: str):
     """Функция для маскировки номера банковской карты и банковского счёта"""
-    for number in number_card.split():  # маскировка номера карты
-        if number.isdigit():
-            number = number.replace(number[6:12], "** **** ")
-            result_number = number[:4] + " " + number[4:]
-        else:
-            pass
-    mask_card = number_card.replace(number_card[-16:], result_number)
+    number_card_or_score_account.split(",")
+    if len(number_card_or_score_account.split(" ")[-1]) == 16:
+        for number in number_card_or_score_account.split():  # маскировка номера карты
+            if number.isdigit():
+                number = number.replace(number[6:12], "** **** ")
+                result_number = number[:4] + " " + number[4:]
+            else:
+                pass
+        mask_card = number_card_or_score_account.replace(number_card_or_score_account[-16:], result_number)
+        return mask_card
+    else:
+        mask_score_account = number_card_or_score_account.replace(number_card_or_score_account[:-4], "**")
 
-    mask_score_account = score_account.replace(score_account[:-4], "**")
+        for score in number_card_or_score_account.split():  # маскировка номера счёта
+            if number_card_or_score_account.isdigit():
+                mask_score_account = score.replace(score[:-4], "**")
+            else:
+                pass
+        mask_account = number_card_or_score_account.replace(number_card_or_score_account[-20:], mask_score_account)
+        return mask_account
 
-    for score in score_account.split():  # маскировка номера счёта
-        if score_account.isdigit():
-            mask_score_account = score.replace(score[:-4], "**")
-        else:
-            pass
-    mask_account = score_account.replace(score_account[-20:], mask_score_account)
 
-    return mask_card + " " + mask_account
-
-print(mask_account_card("Visa Platinum 7000792289606361", "Счет 73654108430135874305"))
+print(mask_account_card("Visa Platinum 7000792289606361"))
+#Visa Platinum 7000792289606361
+#Счет 73654108430135874305
 
 
 def get_date(old_date: str):
