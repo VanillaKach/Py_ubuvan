@@ -17,8 +17,7 @@ def mask_account_card(number_card: str, score_account: str):
             pass
     mask_account = score_account.replace(score_account[-20:], mask_score_account)
 
-    return mask_card, mask_account
-
+    return mask_card + " " + mask_account
 
 print(mask_account_card("Visa Platinum 7000792289606361", "Счет 73654108430135874305"))
 
