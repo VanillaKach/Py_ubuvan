@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 
 def filter_by_state(transactions: list, state: str = "EXECUTED") -> List[Dict]:

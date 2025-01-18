@@ -1,4 +1,4 @@
-def mask_account_card(number_card_or_score_account: str):
+def mask_account_card(number_card_or_score_account: str) -> str:
     """Функция для маскировки номера банковской карты и банковского счёта"""
     number_card_or_score_account.split(",")
     if len(number_card_or_score_account.split(" ")[-1]) == 16:
@@ -23,11 +23,11 @@ def mask_account_card(number_card_or_score_account: str):
 
 
 print(mask_account_card("Счет 73654108430135874305"))
-#Visa Platinum 7000792289606361
-#Счет 73654108430135874305
+# Visa Platinum 7000792289606361
+# Счет 73654108430135874305
 
 
-def get_date(old_date: str):
+def get_date(old_date: str) -> str:
     """Функция для переформатирования даты в формате 'дд.мм.гггг'"""
     year = old_date[0:4]
     month = old_date[5:7]
