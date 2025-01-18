@@ -22,7 +22,7 @@ def mask_account_card(number_card_or_score_account: str):
         return mask_account
 
 
-print(mask_account_card("Visa Platinum 7000792289606361"))
+print(mask_account_card("Счет 73654108430135874305"))
 #Visa Platinum 7000792289606361
 #Счет 73654108430135874305
 
