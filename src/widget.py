@@ -22,6 +22,7 @@ def mask_account_card(number_card_or_score_account: str) -> str:
     else:
         return "Номер карты или счёта указан не верно!"
 
+
 print(mask_account_card("Счет 73654108430135874305"))
 # Visa Platinum 7000792289606361
 # Счет 73654108430135874305
@@ -37,5 +38,6 @@ def get_date(old_date: str) -> str:
         return new_date
     else:
         return "Дата указана не верно!"
+
 
 print(get_date("2024-03-11T02:26:18.671407"))

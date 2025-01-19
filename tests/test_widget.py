@@ -1,35 +1,35 @@
 import pytest
 
-from src.widget import mask_account_card, get_date
+from src.widget import get_date, mask_account_card
 
 
 # Тестирование функции mask_account_card, если на вход идёт номер карты
 @pytest.fixture
-def number_card():
+def number_card() -> str:
     return "Visa Platinum 7000792289606361"
 
 
 @pytest.fixture
-def mask_number_card():
+def mask_number_card() -> str:
     return "Visa Platinum 7000 79** **** 6361"
 
 
-def test_mask_account_card(number_card, mask_number_card):
+def test_mask_account_card(number_card: str, mask_number_card: str) -> None:
     assert mask_account_card(number_card) == mask_number_card
 
 
 # Тестирование функции mask_account_card, если на вход идёт номер счёта
 @pytest.fixture
-def score_account():
+def score_account() -> str:
     return "Счет 73654108430135874305"
 
 
 @pytest.fixture
-def mask_score_account():
+def mask_score_account() -> str:
     return "Счет **4305"
 
 
-def test_mask_account_score(score_account, mask_score_account):
+def test_mask_account_score(score_account: str, mask_score_account: str) -> None:
     assert mask_account_card(score_account) == mask_score_account
 
 
@@ -44,7 +44,7 @@ def test_mask_account_score(score_account, mask_score_account):
         ("Visa Gold 5941353", "Номер карты или счёта указан не верно!"),
     ],
 )
-def test_mask_account_cards(number_card, mask_card_number):
+def test_mask_account_cards(number_card: str, mask_card_number: str) -> None:
     assert mask_account_card(number_card) == mask_card_number
 
 
@@ -59,17 +59,17 @@ def test_mask_account_cards(number_card, mask_card_number):
         ("Счет 845645784", "Номер карты или счёта указан не верно!"),
     ],
 )
-def test_mask_account_score(number_score, mask_score_account):
+def test_mask_account_score_next(number_score: str, mask_score_account: str) -> None:
     assert mask_account_card(number_score) == mask_score_account
 
 
 # Тестирование функции get_date
 @pytest.fixture
-def no_format_date():
+def no_format_date() -> str:
     return "2024-03-11T02:26:18.671407"
 
 
-def test_get_date(no_format_date):
+def test_get_date(no_format_date: str) -> None:
     assert get_date(no_format_date) == "11.03.2024"
 
 
@@ -83,5 +83,5 @@ def test_get_date(no_format_date):
         ("20234-102-13T02:201:19.6564545123", "Дата указана не верно!"),
     ],
 )
-def test_get_date(date_not_format, good_date):
+def test_get_date_next(date_not_format: str, good_date: str) -> None:
     assert get_date(date_not_format) == good_date

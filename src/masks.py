@@ -8,6 +8,8 @@ def get_mask_card_number(card_number: str) -> str:
         return "Номер карты не указан!"
     elif len(card_number) != 16:
         return "Номер карты указан не верно!"
+    else:
+        return "Подумай и попробуй ещё раз ;)"
 
 
 print(get_mask_card_number("7000792289606361"))
@@ -22,5 +24,8 @@ def get_mask_account(bank_account_number: str) -> str:
         return "Номер счёта не указан!"
     elif len(bank_account_number) != 20:
         return "Номер счёта указан не верно!"
+    else:
+        return "Подумай и попробуй ещё раз ;)"
+
 
 print(get_mask_account("73654108430135874305"))

@@ -1,23 +1,23 @@
 import pytest
 
-from src.masks import get_mask_card_number, get_mask_account
+from src.masks import get_mask_account, get_mask_card_number
 
 
 @pytest.fixture
-def card_number():
+def card_number() -> str:
     return "7000792289606361"
 
 
-def test_get_card_number(card_number):
+def test_get_card_number(card_number: str) -> None:
     assert get_mask_card_number(card_number) == "7000 79** **** 6361"
 
 
 @pytest.fixture
-def mask_account():
+def mask_account() -> str:
     return "22022065789536454568"
 
 
-def test_get_mask_account(mask_account):
+def test_get_mask_account(mask_account: str) -> None:
     assert get_mask_account(mask_account) == "**4568"
 
 
@@ -31,7 +31,7 @@ def test_get_mask_account(mask_account):
         ("", "Номер карты не указан!"),
     ],
 )
-def test_get_mask_card_number(number_cards, mask_card_number):
+def test_get_mask_card_number(number_cards: str, mask_card_number: str) -> None:
     assert get_mask_card_number(number_cards) == mask_card_number
 
 
@@ -45,5 +45,5 @@ def test_get_mask_card_number(number_cards, mask_card_number):
         ("", "Номер счёта не указан!"),
     ],
 )
-def test_get_mask_account(mask_number, mask_account):
+def test_get_mask_account_next(mask_number: str, mask_account: str) -> None:
     assert get_mask_account(mask_number) == mask_account
