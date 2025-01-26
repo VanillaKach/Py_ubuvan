@@ -18,7 +18,7 @@ print(filter_by_state(transactions))  # Фильтр по умолчанию 'EX
 
 def sort_by_date(data: List[Dict[str, Any]], descending: Optional[bool] = True) -> List[Dict[str, str]]:
     """Сортирует список словарей по дате"""
-    return sorted(data, key=lambda x: x["date"], reverse=bool(descending))
+    return sorted(data, key = lambda x: x["date"], reverse = bool(descending))
 
 
 # Пример входных данных для проверки функции
