@@ -1,7 +1,9 @@
-import pytest
-import os
 import logging
-from typing import Any
+import os
+from typing import Any, Generator
+
+import pytest
+
 from src.decorators import log  # Импортируем декоратор из модуля, где он определён
 
 
@@ -24,7 +26,7 @@ def multiply(x: int, y: int) -> int:
 
 
 @pytest.fixture
-def cleanup_log_file() -> None:
+def cleanup_log_file() -> Generator[None, None, None]:
     """Фикстура для очистки файла логов перед и после тестов."""
     log_file = "test_log.txt"
     if os.path.exists(log_file):
@@ -67,23 +69,9 @@ def test_divide_error(caplog: Any) -> None:
     assert "divide error: ValueError. Inputs: (10, 0), {}" in caplog.text
 
 
-# def test_multiply_success_to_file(cleanup_log_file: Any) -> None:
-#     """Тест для успешного выполнения функции multiply с логированием в файл."""
-#     result = multiply(3, 4)
-#     assert result == 12
-#
-#     # Проверяем, что файл логов существует
-#     assert os.path.exists("test_log.txt")
-#
-#     # Проверяем содержимое файла логов
-#     with open("test_log.txt", "r") as log_file:
-#         logs = log_file.read()
-#         assert "multiply started with args: (3, 4), kwargs: {}" in logs
-#         assert "multiply ok. Result: 12" in logs
-
-
 def test_multiply_error_to_file(cleanup_log_file: Any) -> None:
     """Тест для обработки ошибки в функции multiply с логированием в файл."""
+
     @log(filename="test_log.txt")
     def faulty_function(x: int) -> None:
         raise RuntimeError("Something went wrong")
