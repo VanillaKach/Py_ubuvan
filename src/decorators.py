@@ -6,7 +6,14 @@ R = TypeVar("R")
 
 
 def log(filename: Optional[str] = None) -> Callable[[Callable[..., R]], Callable[..., R]]:
+    """
+    Декоратор для логирования вызовов функций.
+    """
+
     def decorator(func: Callable[..., R]) -> Callable[..., R]:
+        """
+        Декоратор, который настраивает логирование для функции.
+        """
         # Настраиваем логгер
         logger = logging.getLogger(func.__name__)
         logger.setLevel(logging.INFO)
@@ -26,6 +33,9 @@ def log(filename: Optional[str] = None) -> Callable[[Callable[..., R]], Callable
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> R:
+            """
+            Обертка для функции, которая добавляет логирование.
+            """
             # Логируем начало работы функции
             logger.info(f"{func.__name__} started with args: {args}, kwargs: {kwargs}")
             try:
