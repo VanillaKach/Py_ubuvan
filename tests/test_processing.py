@@ -1,6 +1,6 @@
-from typing import Dict
-
 import pytest
+
+from typing import Dict
 
 from src.processing import filter_by_state, sort_by_date
 
