@@ -48,8 +48,10 @@ def convert_to_rub(transaction: Dict[str, Any]) -> float:
     Returns:
         float: Сумма в рублях.
     """
-    amount = float(transaction.get('amount', 0.0))  # Приводим к float
-    currency = str(transaction.get('currency', 'RUB'))  # Приводим к str
+    # Извлекаем сумму и валюту из объекта operationAmount
+    operation_amount = transaction.get('operationAmount', {})
+    amount = float(operation_amount.get('amount', 0.0))  # Приводим к float
+    currency = str(operation_amount.get('currency', {}).get('code', 'RUB'))  # Получаем код валюты
 
     if currency == 'RUB':
         return amount
