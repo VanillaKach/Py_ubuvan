@@ -1,2 +1,4 @@
 2025-02-13 21:10:28,285 - utils - DEBUG - Попытка загрузки транзакций из файла: /home/ubuvan/PyProject/PyPt_1/src/../data/operations.json
 2025-02-13 21:10:28,286 - utils - DEBUG - Транзакции успешно загружены.
+2025-02-19 19:33:02,389 - utils - DEBUG - Попытка загрузки транзакций из файла: /home/ubuvan/PyProject/PyPt_1/src/../data/operations.json
+2025-02-19 19:33:02,390 - utils - DEBUG - Транзакции успешно загружены.

@@ -1,4 +1,9 @@
-from typing import List, Dict
+import sys
+from typing import Dict, List
+
+from src.regular import count_operations_by_type, search_operations
+from src.working_with_tables import read_transactions_from_csv, read_transactions_from_excel
+
 
 def transactions() -> List[Dict]:
     transact = [
@@ -31,18 +36,54 @@ def transactions() -> List[Dict]:
         },
     ]
     return transact
-# Вставить в строку 69 тест у декоратору*
-# def test_multiply_success_to_file(cleanup_log_file: Any) -> None:
-#     """Тест для успешного выполнения функции multiply с логированием в файл."""
-#     result = multiply(3, 4)
-#     assert result == 12
-#
-#     # Проверяем, что файл логов существует
-#     assert os.path.exists("test_log.txt")
-#
-#     # Проверяем содержимое файла логов
-#     with open("test_log.txt", "r") as log_file:
-#         logs = log_file.read()
-#         assert "multiply started with args: (3, 4), kwargs: {}" in logs
-#         assert "multiply ok. Result: 12" in logs
 
+
+def main() -> None:
+    """
+    Функция main отвечает за основную логику проекта с пользователем и связывает
+    функциональности между собой.
+    """
+    # Загрузим данные из CSV и Excel файлов
+    csv_data: List[Dict] = read_transactions_from_csv("transactions.csv")
+    excel_data: List[Dict] = read_transactions_from_excel("transactions_excel.xlsx")
+
+    # Объединяем данные
+    all_data: List[Dict] = csv_data + excel_data
+
+    # Основной цикл взаимодействия с пользователем
+    while True:
+        print("\nМеню:")
+        print("1. Поиск операций по описанию")
+        print("2. Подсчет операций по категориям")
+        print("3. Выход")
+
+        choice: str = input("Выберите действие: ")
+
+        if choice == "1":
+            search_term: str = input("Введите строку для поиска: ")
+            results: List[Dict] = search_operations(all_data, search_term)
+            print(f"Найдено {len(results)} операций.")
+            for operation in results:
+                print(operation)
+
+        elif choice == "2":
+            categories: Dict[str, str] = {
+                "Перевод организации": "Организационные переводы",
+                "Открытие вклада": "Вклады",
+                "Перевод со счета на счет": "Межсчетовые переводы",
+            }
+            result: Dict[str, int] = count_operations_by_type(all_data, categories)
+            print("Количество операций по категориям:")
+            for category, count in result.items():
+                print(f"{category}: {count}")
+
+        elif choice == "3":
+            print("Завершение программы...")
+            sys.exit(0)
+
+        else:
+            print("Неверный выбор. Попробуйте снова.")
+
+
+if __name__ == "__main__":
+    main()
