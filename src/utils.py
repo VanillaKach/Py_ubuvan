@@ -21,12 +21,6 @@ logger.addHandler(file_handler)
 
 def load_transactions(file_path: str) -> List[Dict[str, Any]]:
     """Загружает транзакции из JSON файла.
-
-    Args:
-        file_path (str): Путь к JSON файлу.
-
-    Returns:
-        List[Dict[str, Any]]: Список транзакций или пустой список, если файл пустой или не найден.
     """
     logger.debug(f"Попытка загрузки транзакций из файла: {file_path}")
 
