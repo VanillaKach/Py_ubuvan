@@ -1,8 +1,8 @@
-import os
-from typing import Dict, List, Optional
+from typing import Any, Dict, List
 
-from src.regular import search_operations
+from src.processing import filter_by_state, sort_by_date
 from src.utils import load_transactions
+from src.widget import get_date, mask_account_card
 from src.working_with_tables import read_transactions_from_csv, read_transactions_from_excel
 
 
@@ -14,71 +14,103 @@ def main() -> None:
     print("3. Получить информацию о транзакциях из XLSX-файла")
 
     choice: str = input("Пользователь: ")
-
-    transactions: List[Dict] = []
+    transactions: List[Dict[str, Any]]  # Инициализируем переменную без значения
 
     if choice == "1":
-        file_path = os.path.join(os.path.dirname(__file__), "../data/operations.json")
-        transactions = load_transactions(file_path)
+        transactions = load_transactions("data/operations.json")
     elif choice == "2":
-        file_path = os.path.join(os.path.dirname(__file__), "../transactions.csv")
-        transactions = read_transactions_from_csv(file_path)
+        transactions = read_transactions_from_csv("data/transactions.csv")
     elif choice == "3":
-        file_path = os.path.join(os.path.dirname(__file__), "../transactions_excel.xlsx")
-        transactions = read_transactions_from_excel(file_path)
+        transactions = read_transactions_from_excel("data/transactions_excel.xlsx")
     else:
-        print("Неверный выбор. Завершение программы.")
+        print("Некорректный выбор.")
         return
 
-    # Запрос статуса
-    status: Optional[str] = None
-    valid_statuses: set[str] = {"executed", "canceled", "pending"}
+    while True:
+        state: str = input(
+            "Введите статус, по которому необходимо выполнить фильтрацию. "
+            "Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING\nПользователь: "
+        )
+        if state.upper() in ["EXECUTED", "CANCELED", "PENDING"]:
+            break
+        else:
+            print(f'Статус операции "{state}" недоступен.')
 
-    while status not in valid_statuses:
-        status = input("Введите статус, по которому необходимо выполнить фильтрацию. "
-                       "Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING\n").lower()
-        if status not in valid_statuses:
-            print(f"Статус операции \"{status.upper()}\" недоступен.")
+    filtered_transactions: List[Dict[str, Any]] = filter_by_state(transactions, state)
+    print(f'Операции отфильтрованы по статусу "{state}".')
 
-    print(f"Операции отфильтрованы по статусу \"{status.upper()}\"")
+    sort_choice: str = input("Отсортировать операции по дате? Да/Нет\nПользователь: ").strip().lower()
+    if sort_choice == "да":
+        order_choice: str = input("Отсортировать по возрастанию или по убыванию?  возрастанию/по убыванию\nПользователь: ").strip().lower()
+        descending: bool = order_choice == "по убыванию"
+        filtered_transactions = sort_by_date(filtered_transactions, descending)
 
-    # Фильтрация по статусу
-    filtered_transactions: List[Dict] = [t for t in transactions if t.get('state', '').lower() == status]
+    currency_filter: str = input("Выводить только рублевые транзакции? Да/Нет\nПользователь: ").strip().lower()
+    if currency_filter == "да":
+        filtered_transactions = [trans for trans in filtered_transactions if trans.get("currency_code") == "RUB"]
 
-    if not filtered_transactions:
-        print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
-        return
+    description_filter: str = (
+        input("Отфильтровать список транзакций по определенному слову в описании? Да/Нет\nПользователь: ")
+        .strip()
+        .lower()
+    )
+    if description_filter == "да":
+        keyword: str = input("Введите слово для фильтрации по описанию:\nПользователь: ")
+        filtered_transactions = [
+            trans for trans in filtered_transactions if keyword.lower() in trans.get("description", "").lower()
+        ]
 
-    # Запрос дополнительных фильтров
-    sort_by_date: bool = input("Отсортировать операции по дате? Да/Нет\n").strip().lower() == "да"
-    if sort_by_date:
-        order: str = input("Отсортировать по возрастанию или по убыванию?\n").strip().lower()
-        if order == "по возрастанию":
-            filtered_transactions.sort(key=lambda x: x.get('date') or '')
-        elif order == "по убыванию":
-            filtered_transactions.sort(key=lambda x: x.get('date') or '', reverse=True)
+    print("Распечатываю итоговый список транзакций...")
 
-    only_rub: bool = input("Выводить только рублевые транзакции? Да/Нет\n").strip().lower() == "да"
-
-    keyword_filter: bool = input(
-        "Отфильтровать список транзакций по определенному слову в описании? Да/Нет\n").strip().lower() == "да"
-    if keyword_filter:
-        search_string: str = input("Введите слово для фильтрации по описанию:\n")
-        filtered_transactions = search_operations(filtered_transactions, search_string)
-
-    # Вывод результатов
     if filtered_transactions:
-        print("Распечатываю итоговый список транзакций...")
-        print(f"Всего банковских операций в выборке: {len(filtered_transactions)}")
-        for transaction in filtered_transactions:
-            if only_rub and transaction.get('currency') != 'RUB':
-                continue
-            print(f"{transaction.get('date')} {transaction.get('description')}\n"
-                  f"Счет {transaction.get('account')}\n"
-                  f"Сумма: {transaction.get('amount')} {transaction.get('currency')}\n")
+        print(f"Всего банковских операций в выборке: {len(filtered_transactions)}\n")
+        for trans in filtered_transactions:
+            date_formatted: str = get_date(trans["date"])
+            description: str = trans["description"]
+            amount: float = trans["amount"]
+            currency: str = trans["currency_code"]
+            from_account: str = mask_account_card(trans["from"]) if trans.get("from") else "Счет **0000"
+            to_account: str = mask_account_card(trans["to"]) if trans.get("to") else "Счет **0000"
+
+            print(f"{date_formatted} {description}")
+            print(f"{from_account} -> {to_account}")
+            print(f"Сумма: {amount} {currency}\n")
     else:
         print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
 
 
 if __name__ == "__main__":
     main()
+
+
+def transactions() -> List[Dict]:
+    transact = [
+        {
+            "id": 939719570,
+            "state": "EXECUTED",
+            "date": "2018-06-30T02:08:58.425572",
+            "operationAmount": {"amount": "9824.07", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод организации",
+            "from": "Счет 75106830613657916952",
+            "to": "Счет 11776614605963066702",
+        },
+        {
+            "id": 142264268,
+            "state": "EXECUTED",
+            "date": "2019-04-04T23:20:05.206878",
+            "operationAmount": {"amount": "79114.93", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод со счета на счет",
+            "from": "Счет 19708645243227258542",
+            "to": "Счет 75651667383060284188",
+        },
+        {
+            "id": 123456789,
+            "state": "EXECUTED",
+            "date": "2020-01-01T00:00:00.000000",
+            "operationAmount": {"amount": "1000.00", "currency": {"name": "EUR", "code": "EUR"}},
+            "description": "Перевод в евро",
+            "from": "Счет 11111111111111111111",
+            "to": "Счет 22222222222222222222",
+        },
+    ]
+    return transact
