@@ -1,4 +1,87 @@
-from typing import List, Dict
+from typing import Any, Dict, List
+
+from src.processing import filter_by_state, sort_by_date
+from src.utils import load_transactions
+from src.widget import get_date, mask_account_card
+from src.working_with_tables import read_transactions_from_csv, read_transactions_from_excel
+
+
+def main() -> None:
+    print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
+    print("Выберите необходимый пункт меню:")
+    print("1. Получить информацию о транзакциях из JSON-файла")
+    print("2. Получить информацию о транзакциях из CSV-файла")
+    print("3. Получить информацию о транзакциях из XLSX-файла")
+
+    choice: str = input("Пользователь: ")
+    transactions: List[Dict[str, Any]]  # Инициализируем переменную без значения
+
+    if choice == "1":
+        transactions = load_transactions("data/operations.json")
+    elif choice == "2":
+        transactions = read_transactions_from_csv("data/transactions.csv")
+    elif choice == "3":
+        transactions = read_transactions_from_excel("data/transactions_excel.xlsx")
+    else:
+        print("Некорректный выбор.")
+        return
+
+    while True:
+        state: str = input(
+            "Введите статус, по которому необходимо выполнить фильтрацию. "
+            "Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING\nПользователь: "
+        )
+        if state.upper() in ["EXECUTED", "CANCELED", "PENDING"]:
+            break
+        else:
+            print(f'Статус операции "{state}" недоступен.')
+
+    filtered_transactions: List[Dict[str, Any]] = filter_by_state(transactions, state)
+    print(f'Операции отфильтрованы по статусу "{state}".')
+
+    sort_choice: str = input("Отсортировать операции по дате? Да/Нет\nПользователь: ").strip().lower()
+    if sort_choice == "да":
+        order_choice: str = input("Отсортировать по возрастанию или по убыванию?  возрастанию/по убыванию\nПользователь: ").strip().lower()
+        descending: bool = order_choice == "по убыванию"
+        filtered_transactions = sort_by_date(filtered_transactions, descending)
+
+    currency_filter: str = input("Выводить только рублевые транзакции? Да/Нет\nПользователь: ").strip().lower()
+    if currency_filter == "да":
+        filtered_transactions = [trans for trans in filtered_transactions if trans.get("currency_code") == "RUB"]
+
+    description_filter: str = (
+        input("Отфильтровать список транзакций по определенному слову в описании? Да/Нет\nПользователь: ")
+        .strip()
+        .lower()
+    )
+    if description_filter == "да":
+        keyword: str = input("Введите слово для фильтрации по описанию:\nПользователь: ")
+        filtered_transactions = [
+            trans for trans in filtered_transactions if keyword.lower() in trans.get("description", "").lower()
+        ]
+
+    print("Распечатываю итоговый список транзакций...")
+
+    if filtered_transactions:
+        print(f"Всего банковских операций в выборке: {len(filtered_transactions)}\n")
+        for trans in filtered_transactions:
+            date_formatted: str = get_date(trans["date"])
+            description: str = trans["description"]
+            amount: float = trans["amount"]
+            currency: str = trans["currency_code"]
+            from_account: str = mask_account_card(trans["from"]) if trans.get("from") else "Счет **0000"
+            to_account: str = mask_account_card(trans["to"]) if trans.get("to") else "Счет **0000"
+
+            print(f"{date_formatted} {description}")
+            print(f"{from_account} -> {to_account}")
+            print(f"Сумма: {amount} {currency}\n")
+    else:
+        print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
+
+
+if __name__ == "__main__":
+    main()
+
 
 def transactions() -> List[Dict]:
     transact = [
@@ -31,18 +114,3 @@ def transactions() -> List[Dict]:
         },
     ]
     return transact
-# Вставить в строку 69 тест у декоратору*
-# def test_multiply_success_to_file(cleanup_log_file: Any) -> None:
-#     """Тест для успешного выполнения функции multiply с логированием в файл."""
-#     result = multiply(3, 4)
-#     assert result == 12
-#
-#     # Проверяем, что файл логов существует
-#     assert os.path.exists("test_log.txt")
-#
-#     # Проверяем содержимое файла логов
-#     with open("test_log.txt", "r") as log_file:
-#         logs = log_file.read()
-#         assert "multiply started with args: (3, 4), kwargs: {}" in logs
-#         assert "multiply ok. Result: 12" in logs
-
